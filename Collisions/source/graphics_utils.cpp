@@ -106,3 +106,24 @@ void CheckForTerminationSignal(int n_proc, int rank, bool &keep_going)
         }
     }
 }
+
+void UpdateFrame(Uint64 frame_start, std::vector<Body> &local_bodies, const unsigned int X_OFFSET, const unsigned int HEIGHT, int rank, int n_proc, bool &keep_going)
+{
+    auto frame_time = SDL_GetTicks() - frame_start;
+    const unsigned int frame_min = 1000 / 60;
+    if (frame_time < frame_min)
+    {
+        SDL_Delay(frame_min - frame_time);
+    }
+    RenderScene(local_bodies, X_OFFSET);
+    if (rank == 0)
+    {
+        CheckForTerminationSignal(n_proc, rank, keep_going);
+        CheckForEvents(keep_going, n_proc, rank);
+    }
+    else
+    {
+        CheckForEvents(keep_going, n_proc, rank);
+        CheckForTerminationSignal(n_proc, rank, keep_going);
+    }
+}

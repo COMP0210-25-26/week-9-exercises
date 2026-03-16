@@ -1,6 +1,6 @@
 #ifdef GRAPHICS
 #include "graphics_utils.h"
-#endif 
+#endif
 
 #include <vector>
 #include <mpi.h>
@@ -17,14 +17,14 @@ int main()
     MPI_Comm_size(MPI_COMM_WORLD, &n_proc);
 
     const unsigned int WIDTH = 100;
-    const unsigned int X_OFFSET = 0; // min value of x in this process; necessary for rendering sub-spaces later
+    const unsigned int X_OFFSET = 0; // min value of x in this process; necessary for rendering
     const unsigned int HEIGHT = 50;
 
-    #ifdef GRAPHICS
+#ifdef GRAPHICS
     SetupRendering(rank, WIDTH, HEIGHT);
-    #endif
+#endif
 
-    Body b1, b2, b3, b4;
+    Body b1, b2;
     b1.position = {30, 25, 0}; b1.velocity = {2, 0, 0}; b1.colour = {0, 0, 255};
     b2.position = {90, 25, 0}; b2.velocity = {-4, 0, 0}; b2.colour = {255, 0, 0};
     vector<Body> bodies = {b1, b2};
@@ -36,9 +36,9 @@ int main()
     double dt = 0.1;
     while (keep_going && t < t_max)
     {
-        #ifdef GRAPHICS
+#ifdef GRAPHICS
         auto frame_start = SDL_GetTicks();
-        #endif
+#endif
 
         t = (steps++) * dt;
         // update positions
@@ -66,33 +66,12 @@ int main()
             wallBounce(b, WIDTH, HEIGHT);
         }
 
-
         // Only necessary for graphical rendering
 #ifdef GRAPHICS
-        auto frame_time = SDL_GetTicks() - frame_start;
-        const unsigned int frame_min = 1000/60;
-        if(frame_time < frame_min)
-        {
-            SDL_Delay(frame_min - frame_time);
-        }
-        RenderScene(bodies, X_OFFSET);
-        if (rank == 0)
-        {
-            CheckForTerminationSignal(n_proc, rank, keep_going);
-            CheckForEvents(keep_going, n_proc, rank);
-        }
-        else
-        {
-            CheckForEvents(keep_going, n_proc, rank);
-            CheckForTerminationSignal(n_proc, rank, keep_going);
-        }
+        UpdateFrame(frame_start, bodies, X_OFFSET, HEIGHT, rank, n_proc, keep_going);
 #endif
     }
 
-    // exit
     MPI_Finalize();
-    return 0; 
+    return 0;
 }
-
-
-
