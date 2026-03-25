@@ -10,7 +10,6 @@ int main()
     int n_ranks;
     MPI_Comm_size(MPI_COMM_WORLD, &n_ranks);
     int neighbour_rank;
-    MPI_Request R;
 
     // replace this call with a MPI_Bsend
     MPI_Send(&rank, 1, MPI_INT, (rank+1)%n_ranks, 0, MPI_COMM_WORLD);
